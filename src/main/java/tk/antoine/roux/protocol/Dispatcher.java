@@ -100,11 +100,8 @@ public class Dispatcher {
 
     public void unicastMessage(PeerDefinition remote, Verbs verb) throws IOException {
         byte[] buffer = verb.getBytes();
-
         LOGGER.info(() -> String.format("send : %s to %s", new String(buffer), remote));
-
-        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, remote.ip, remote.port);
-        self.datagramSocket.send(datagramPacket);
+        self.socketProvider.send(buffer, remote);
     }
 
     public void broadcastMessage(Verbs verb) throws IOException {

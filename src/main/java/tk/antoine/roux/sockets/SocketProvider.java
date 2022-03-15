@@ -1,13 +1,15 @@
 package tk.antoine.roux.sockets;
 
+import tk.antoine.roux.node.PeerDefinition;
+
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SocketProvider {
@@ -15,13 +17,15 @@ public class SocketProvider {
 
     private final InetAddress address;
     private final Integer port;
+    private final DatagramSocket datagramSocket;
 
-    public SocketProvider(InetAddress hostname, Integer portNumber) {
+    public SocketProvider(InetAddress hostname, Integer portNumber) throws SocketException {
         port = portNumber;
         address = hostname;
+        datagramSocket = create();
     }
 
-    public DatagramSocket create() throws SocketException {
+    private DatagramSocket create() throws SocketException {
         try {
             SocketAddress socketAddress = new InetSocketAddress(address, port);
             return new DatagramSocket(socketAddress);
@@ -29,5 +33,16 @@ public class SocketProvider {
             LOGGER.severe(e.getMessage());
             throw e;
         }
+    }
+
+    public DatagramPacket receive(byte[] buffer) throws IOException {
+        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
+        datagramSocket.receive(datagramPacket);
+        return datagramPacket;
+    }
+
+    public void send(byte[] buffer, PeerDefinition remote) throws IOException {
+        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, remote.ip, remote.port);
+        datagramSocket.send(datagramPacket);
     }
 }

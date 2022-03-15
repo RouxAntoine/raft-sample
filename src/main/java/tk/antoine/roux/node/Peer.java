@@ -27,7 +27,7 @@ public class Peer {
 
     public final Dispatcher protocol;
 
-    public final DatagramSocket datagramSocket;
+    public final SocketProvider socketProvider;
     public final LocalPeerDefinition selfDefinition;
     public PeerStatus status = FOLLOWER;
     public ConcurrentMap<PeerDefinition, Integer> remoteClusterHealth;
@@ -46,22 +46,19 @@ public class Peer {
                         )
                 );
 
-        SocketProvider socketProvider = new SocketProvider(selfDefinition.self.ip, selfDefinition.self.port);
-        datagramSocket = socketProvider.create();
-
+        socketProvider = new SocketProvider(selfDefinition.self.ip, selfDefinition.self.port);
         protocol = new Dispatcher(this);
     }
 
     public Thread listen() {
-        byte[] buffer = new byte[256];
 
         Thread serverThread = new Thread(() -> {
             boolean exit = false;
             LOGGER.config("reception thread start");
             while (!exit) {
-                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
+                byte[] buffer = new byte[256];
                 try {
-                    datagramSocket.receive(datagramPacket);
+                    DatagramPacket datagramPacket = socketProvider.receive(buffer);
                     PeerDefinition peer = trackPeer(datagramPacket.getAddress(), datagramPacket.getPort());
 
                     LOGGER.fine(() -> String.format("receive byte %s from remote %s", new String(buffer).trim(), peer));
@@ -71,7 +68,6 @@ public class Peer {
                 } catch (IOException e) {
                     LOGGER.warning(() -> String.format("Exception during packet reception %s", e.getMessage()));
                 }
-                Arrays.fill(buffer, (byte) '\0');
             }
             LOGGER.config("reception thread end");
         });
