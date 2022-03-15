@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'tk.antoineroux'
+version '1.0.0-SNAPSHOT'
+mainClassName = gradle.mainClass
+
+repositories {
+    mavenCentral()
+}
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+    }
+}
+jar {
+    manifest {
+        attributes["Main-Class"] = 'tk.antoineroux.Main'
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.15'
+}
+test {
+    useJUnitPlatform()
+}
+
+tasks.register('uberJar', Jar) {
+    archiveClassifier = 'uber'
+    manifest {
+        attributes["Main-Class"] = gradle.mainClass
+    }
+
+    from sourceSets.main.output
+
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+}

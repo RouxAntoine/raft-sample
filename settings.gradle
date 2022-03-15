@@ -1,0 +1,2 @@
+rootProject.name = 'RaftSample'
+gradle.ext.mainClass = 'tk.antoine.roux.Main'
