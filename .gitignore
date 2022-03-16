@@ -2,3 +2,7 @@
 build/
 .gradle/
 .DS_Store
+
+## eclipse project file
+.project
+.classpath
