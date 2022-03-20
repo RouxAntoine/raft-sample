@@ -31,30 +31,8 @@ public class Main {
             election.join();
         }
 
-        /*
-         targetIP = new HTTPCaller().call("https://ifconfig.me/ip");
-         LOGGER.info(String.format("current public ip is : %s",  targetIP));
-         asyncLogString(List.of("toto", "titi"));
-        */
-
         LOGGER.config("Bye 🥺");
     }
-
-//    private static void asyncLogString(List<String> strings) {
-//        Flux<String> stringFlux = Flux.fromIterable(strings);
-//        stringFlux
-//                .publishOn(Schedulers.boundedElastic())
-//                .handle((String name, SynchronousSink<String> sink) -> {
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch (InterruptedException e) {
-//                        sink.error(e);
-//                    }
-//                    LOGGER.info(name);
-//                    sink.next(name);
-//                })
-//                .blockLast();
-//    }
 
     private static void configureLogger() throws IOException {
         InputStream resource = MethodHandles.lookup().lookupClass().getClassLoader().getResourceAsStream(LOGGING_PROPERTIES_FILE);
