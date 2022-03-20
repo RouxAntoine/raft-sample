@@ -1,0 +1,19 @@
+project:
+  license: 'Beerware'
+  licenseUrl: 'https://spdx.org/licenses/Beerware.html'
+  snapshot:
+    pattern: .*-SNAPSHOT
+  java:
+    version: 17
+
+release:
+  github:
+    owner: RouxAntoine
+    name: raft-sample
+    overwrite: true
+
+distributions:
+  github-exec-jar:
+    type: SINGLE_JAR
+    artifacts:
+      - path: build/libs/RaftSample-{{projectVersion}}-uber.jar

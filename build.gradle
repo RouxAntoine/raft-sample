@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.jreleaser' version '1.0.0-M3'
 }
 
 group 'tk.antoineroux'
@@ -21,6 +22,27 @@ jar {
     manifest {
         attributes["Main-Class"] = 'tk.antoineroux.Main'
     }
+}
+
+jreleaser {
+    project {
+        description = 'a sample raft consensus implementation'
+        longDescription = 'a sample raft consensus implementation'
+        website = 'antoine-roux.tk'
+        versionPattern = 'SEMVER'
+        license = 'Beerware'
+        licenseUrl = 'https://spdx.org/licenses/Beerware.html'
+        tags = []
+        copyright = '2021 Duke'
+        vendor = 'Acme inc.'
+        authors = ['Antoine Roux']
+        snapshot {
+            snapshotPattern = ".*-SNAPSHOT"
+        }
+        extraProperties.put('inceptionYear', '2022')
+        docsUrl = 'https://acme.com/app/docs'
+    }
+    configFile='jreleaser.yml'
 }
 
 dependencies {

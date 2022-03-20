@@ -26,3 +26,6 @@ fat-jar:
 
 check-port:
 	sudo netstat -nltuAav -p udp | grep 1024
+
+release:
+	$(GRADLE_CLI) jreleaserFullRelease
