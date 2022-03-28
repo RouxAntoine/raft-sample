@@ -1,4 +1,4 @@
-# raft consensus simple protocol implementation
+# simple consensus protocol implementation
 
 based on documentation on [http://thesecretlivesofdata.com/raft/](http://thesecretlivesofdata.com/raft/)
 
