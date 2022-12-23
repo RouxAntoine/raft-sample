@@ -1,6 +1,8 @@
 package tk.antoine.roux.node;
 
 import tk.antoine.roux.protocol.Dispatcher;
+import tk.antoine.roux.protocol.MagicHeader;
+import tk.antoine.roux.protocol.RaftPacket;
 import tk.antoine.roux.protocol.Verbs;
 import tk.antoine.roux.sockets.SocketProvider;
 
@@ -53,13 +55,18 @@ public class Peer {
             boolean exit = false;
             LOGGER.config("reception thread start");
             while (!exit) {
-                byte[] buffer = new byte[256];
                 try {
-                    DatagramPacket datagramPacket = socketProvider.receive(buffer);
-                    PeerDefinition peer = trackPeer(datagramPacket.getAddress(), datagramPacket.getPort());
+                    RaftPacket packet = socketProvider.receive();
+                    DatagramPacket packetMetadata = packet.metadata();
+                    PeerDefinition peer;
+                    if (packet.magicHeader().equals(MagicHeader.VALID_PEER)) {
+                        peer = trackPeer(packetMetadata.getAddress(), packetMetadata.getPort());
+                    } else {
+                        peer = createPeer(packetMetadata.getAddress(), packetMetadata.getPort());
+                    }
 
-                    LOGGER.fine(() -> String.format("receive byte %s from remote %s", new String(buffer).trim(), peer));
-                    Verbs msg = Verbs.fromBytes(buffer);
+                    LOGGER.fine(() -> String.format("receive byte %s from remote %s", packet.data(), peer));
+                    Verbs msg = packet.verb();
                     LOGGER.info(() -> String.format("receive verb %s from remote %s", msg.toString(), peer));
                     exit = protocol.dispatch(peer, msg);
                 } catch (IOException e) {
@@ -106,6 +113,10 @@ public class Peer {
             remoteClusterHealth.put(unknownPeer, MAX_REMOTE_ALIVE);
             return unknownPeer;
         });
+    }
+
+    private PeerDefinition createPeer(InetAddress ip, Integer port) {
+        return searchRemote(ip, port).orElseGet(() -> new PeerDefinition(ip, port));
     }
 
     private Optional<PeerDefinition> searchRemote(InetAddress ip, Integer port) {

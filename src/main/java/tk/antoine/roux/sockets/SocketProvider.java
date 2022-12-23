@@ -1,10 +1,10 @@
 package tk.antoine.roux.sockets;
 
 import tk.antoine.roux.node.PeerDefinition;
+import tk.antoine.roux.protocol.RaftPacket;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -35,14 +35,18 @@ public class SocketProvider {
         }
     }
 
-    public DatagramPacket receive(byte[] buffer) throws IOException {
-        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
-        datagramSocket.receive(datagramPacket);
-        return datagramPacket;
+    public RaftPacket receive() throws IOException {
+        RaftPacket.Builder builder = RaftPacket.builder();
+        datagramSocket.receive(builder.getDatagramPacket());
+        return builder.build();
     }
 
     public void send(byte[] buffer, PeerDefinition remote) throws IOException {
-        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, remote.ip, remote.port);
-        datagramSocket.send(datagramPacket);
+        RaftPacket packet = RaftPacket.builder()
+                .withBuffer(buffer)
+                .withTarget(remote.ip, remote.port)
+                .build();
+
+        datagramSocket.send(packet.metadata());
     }
 }
